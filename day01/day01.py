@@ -25,6 +25,12 @@ def part_1():
             max_id = elf
     return max_id, max_food
 
+def part_1_better():
+    sum_buckets = sorted([sum(bucket) for bucket in buckets], reverse=True)
+    return sum_buckets[0]
+
+def part_2_better():
+    return sum(sorted([sum(bucket) for bucket in buckets], reverse=True)[0:3])
 
 def part_2():
     max_food = [0, 0, 0]
@@ -38,4 +44,6 @@ def part_2():
     return sum(max_food)
 
 print(f"Part 1: {part_1()}")
+print(f"Part 1 better: {part_1_better()}")
 print(f"Part 2: {part_2()}")
+print(f"Part 2 better: {part_2_better()}")
