@@ -1,4 +1,11 @@
 import argparse
+from pathlib import Path
+import sys
+
+# Add aoc_common to the python path
+file = Path(__file__)
+root = file.parent.parent
+sys.path.append(root.as_posix())
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--sample', '-s', help='Run with sample data', action='store_true', default=False)
