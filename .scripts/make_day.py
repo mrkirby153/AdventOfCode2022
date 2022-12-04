@@ -28,7 +28,7 @@ print(f"Creating template for {year} day {day}")
 day_dir = f"day{day:02d}"
 
 if not os.path.exists(day_dir):
-    os.mkdir(f"day{day}")
+    os.mkdir(day_dir)
     shutil.copy(".scripts/template.py", f"{day_dir}/{day_dir}.py")
 else:
     print("Day already exists. Not overwriting...")
