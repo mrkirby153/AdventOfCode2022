@@ -1,8 +1,8 @@
-def to_2d_matrix(raw_input):
+def to_2d_matrix(raw_input, mapper=None):
     """
     Reads the raw input into a 2d matrix
     """
-    return [[y for y in x] for x in raw_input]
+    return [[y if mapper is None else mapper(y) for y in x] for x in raw_input]
 
 def print_2d_matrix(matrix, print_func=print, mapper=None, pad=False):
     """
