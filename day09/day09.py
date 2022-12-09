@@ -108,10 +108,26 @@ def print_grid(size, head_loc, tail_loc):
                 dprint(".", end="")
         dprint()
 
-def manhattan_distance(pt1, pt2):
-    x1, y1 = pt1
-    x2, y2 = pt2
-    return abs(x1-x2) - abs(y1-y2)
+def print_grid_many_knots(size, head_loc, tails):
+
+    def _get_index(point):
+        try:
+            return tails.index(point)
+        except ValueError:
+            return None
+
+    for y in range(size-1, -1, -1):
+        for x in range(0, size+1):
+            point = (x, y)
+            if head_loc == point:
+                dprint("H", end="")
+            elif _get_index(point) is not None:
+                dprint(f"{_get_index(point)+1}", end="")
+            elif point == (0, 0):
+                dprint("s", end="")
+            else:
+                dprint(".", end="")
+        dprint()
 
 def part_1():
     head_location = (0, 0)
@@ -134,7 +150,30 @@ def part_1():
     return len(tail_visited)
 
 def part_2():
-    pass
+    head_location = (0, 0)
+    tail_locations = [(0, 0) for x in range(9)]
+
+    tail_visited = set()
+    print_grid_many_knots(5, head_location, tail_locations)
+
+    for direction, amount in input_data:
+        dprint(f"--- {direction, amount} ---")
+        print_grid_many_knots(5, head_location, tail_locations)
+        dprint()
+        dprint()
+        for i in range(int(amount)):
+            head_location = move_head(head_location, direction, 1)
+            # Each knot moves according to the knot in front of it
+            # Special case the first knot
+            tail_locations[0] = move_tail(tail_locations[0], head_location)
+            for i in range(1, 9):
+                tail_locations[i] = move_tail(tail_locations[i], tail_locations[i-1])
+            tail_visited.add(tail_locations[8])
+            dprint(f"Tail is at {tail_locations[8]}")
+            print_grid_many_knots(5, head_location, tail_locations)
+            dprint()
+            dprint()
+    return len(tail_visited)
 
 print(f"Part 1: {part_1()}")
 print(f"Part 2: {part_2()}")
