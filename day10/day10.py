@@ -80,7 +80,7 @@ def draw_sprite(delta_x):
     global current_row
     global screen
     dprint(f"Cycle {cycle} start")
-    position = (cycle % 40) - 1
+    position = ((cycle - 1) % 40)
     current_row += '█' if x - 1 <= position <= x + 1 else ' '
     if cycle % 40 == 0:
         screen += f"{current_row}\n"
