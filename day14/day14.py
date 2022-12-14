@@ -24,7 +24,7 @@ def dprint(*args, **kwargs):
 with open('input.txt' if not parsed_args.sample else 'sample.txt') as f:
     input_data = list(map(lambda x: x.replace('\n', ''), f.readlines()))
 
-# dprint(input_data)
+dprint(input_data)
 
 
 paths = []
@@ -89,9 +89,9 @@ def get_local_points_for_path(path):
     return points
 
 
-def generate_grid():
+def generate_grid(infinite_floor=False):
     grid = []
-    for _ in range(max_y+1):
+    for _ in range(max_y+1 + (2 if infinite_floor else 0)):
         grid.append([None for _ in range(max_x - min_x + 1)])
 
     sand_x, sand_y = translate_to_local_position(SAND_GENERATION_POINT)
@@ -102,6 +102,10 @@ def generate_grid():
         dprint(get_local_points_for_path(path))
         for x, y in get_local_points_for_path(path):
             grid[y][x] = "#"
+
+    if infinite_floor:
+        for i in range(len(grid[-1])):
+            grid[-1][i] = '#'
 
     print_grid(grid)
     return grid
@@ -115,6 +119,8 @@ def drop_sand(grid):
     x, y = translate_to_local_position(SAND_GENERATION_POINT)
     dprint("Dropping from ", x, y)
     while y < len(grid):
+        if y == len(grid)-1:
+            return None
         y += 1
         dprint("Below", grid[y][x])
         if grid[y][x] is not None:
@@ -137,17 +143,42 @@ def part_1():
     grid = generate_grid()
 
     i = 0
-    try:
-        while True:
-            x, y = drop_sand(grid)
-            grid[y][x] = 'o'
+    while True:
+        point = drop_sand(grid)
+        if point is None:
+            break
+        x, y = point
+        grid[y][x] = 'o'
+        if parsed_args.sample:
             print_grid(grid)
-            i += 1
-    except IndexError:
-        return i
+        i += 1
+    return i
 
 def part_2():
-    pass
+    global min_x
+    global max_x
+    min_x -= 500
+    max_x += 500
+
+    grid = generate_grid(True)
+
+    def _should_stop():
+        x, y = translate_to_local_position(SAND_GENERATION_POINT)
+        return grid[y][x] == 'o'
+
+    i = 0
+    while True:
+        point = drop_sand(grid)
+        if point is None or _should_stop():
+            break
+        x, y = point
+        grid[y][x] = 'o'
+        if parsed_args.sample:
+            print_grid(grid)
+        i += 1
+        dprint(i, end="\r")
+    return i
+
 
 print(f"Part 1: {part_1()}")
 print(f"Part 2: {part_2()}")
