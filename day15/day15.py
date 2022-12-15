@@ -81,12 +81,46 @@ def get_empty_beacon(y, sensors_to_beacons, beacon_distances):
 
     return invalid - len(beacons_at_y)
 
+def find_beacon_coordinate(sensor_map, points_to_scan):
+    for x, y in tqdm(points_to_scan, "Point Lookup"):
+        if not any((manhattan_distance((x, y), (sensor_x, sensor_y)) <= distance for (sensor_x, sensor_y), distance in sensor_map.items())):
+            return x, y
+
+def find_perimiter_points(sensor_map, min_xy, max_xy):
+    perimiter_points = set()
+    for (x, y), distance in tqdm(sensor_map.items(), "sensor"):
+        for i in tqdm(range(distance), "range"):
+            x1, y1 = x + i, y + distance + 1 - i
+            if min_xy <= x1 <= max_xy and min_xy <= y1 <= max_xy:
+                if (x1, y1) not in perimiter_points:
+                    yield (x1, y1)
+                perimiter_points.add((x1, y1))
+            x1, y1 = x + i, y - distance - 1 + i
+            if min_xy <= x1 <= max_xy and min_xy <= y1 <= max_xy:
+                if (x1, y1) not in perimiter_points:
+                    yield (x1, y1)
+                perimiter_points.add((x1, y1))
+            x1, y1 = x - i, y + distance + 1 - i
+            if min_xy <= x1 <= max_xy and min_xy <= y1 <= max_xy:
+                if (x1, y1) not in perimiter_points:
+                    yield (x1, y1)
+                perimiter_points.add((x1, y1))
+            x1, y1 = x - i, y -distance - 1 + i
+            if min_xy <= x1 <= max_xy and min_xy <= y1 <= max_xy:
+                if (x1, y1) not in perimiter_points:
+                    yield (x1, y1)
+                perimiter_points.add((x1, y1))
+
+
 def part_1():
     row = 10 if parsed_args.sample else 2000000
     return get_empty_beacon(row, sensors_to_beacons, beacon_distances)
 
 def part_2():
-    pass
+    perimiter_points = find_perimiter_points(beacon_distances, 0, 20 if parsed_args.sample else 4000000)
+    beacon_x, beacon_y = find_beacon_coordinate(beacon_distances, perimiter_points)
+    print(f"Missing beacon at {beacon_x}, {beacon_y}")
+    return beacon_x * 4000000 + beacon_y
 
 print(f"Part 1: {part_1()}")
 print(f"Part 2: {part_2()}")
