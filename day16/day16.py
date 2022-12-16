@@ -46,8 +46,7 @@ potential_valves = sorted([x[0] for x in valve_flow_rates.items() if x[1] != 0])
 
 
 @lru_cache(maxsize=None)
-def get_max_flow_rate(current_position, opened_valves, time_left, depth=0):
-   # dprint("  "*depth, current_position, opened_valves, time_left)
+def get_max_flow_rate(current_position, opened_valves, time_left):
     if time_left <= 0:
         return 0
     
@@ -56,15 +55,15 @@ def get_max_flow_rate(current_position, opened_valves, time_left, depth=0):
     if valve_flow_rates[current_position] == 0 or current_position in opened_valves:
         best = 0
         for adjacent in valve_tunnels[current_position]:
-            best = max(best, get_max_flow_rate(adjacent, opened_valves, time_left - 1, depth+1))
+            best = max(best, get_max_flow_rate(adjacent, opened_valves, time_left - 1))
         return best
     else:
         gained_flow = (time_left - 1) * valve_flow_rates[current_position]
         best = 0
         opened = tuple(sorted(opened_valves + (current_position,)))
         for adjacent in valve_tunnels[current_position]:
-            best = max(best, gained_flow + get_max_flow_rate(adjacent, opened, time_left - 2, depth+1))
-            best = max(best, gained_flow + get_max_flow_rate(adjacent, opened_valves, time_left - 1, depth+1))
+            best = max(best, gained_flow + get_max_flow_rate(adjacent, opened, time_left - 2))
+            best = max(best, get_max_flow_rate(adjacent, opened_valves, time_left - 1))
         return best
 
 def part_1():
