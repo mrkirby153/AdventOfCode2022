@@ -9,9 +9,12 @@ sys.path.append(root.as_posix())
 
 from collections import defaultdict
 from copy import copy
+from math import floor
+from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--sample', '-s', help='Run with sample data', action='store_true', default=False)
+parser.add_argument('--silent', help='Disable dprint statements', action='store_true', default=False)
 
 parsed_args = parser.parse_args()
 
@@ -19,7 +22,7 @@ if parsed_args.sample:
     print("Using sample data!")
 
 def dprint(*args, **kwargs):
-    if parsed_args.sample:
+    if parsed_args.sample and not parsed_args.silent:
         print(*args, **kwargs)
 
 with open('input.txt' if not parsed_args.sample else 'sample.txt') as f:
@@ -63,10 +66,6 @@ rocks = [
 # The row of the origin of the piece (starting from the top bottom)
 rock_lowest = [
     0, 2, 2, 3, 1
-]
-
-rock_heights = [
-    1, 3, 3, 4, 2
 ]
 
 dprint(input_data)
@@ -129,9 +128,11 @@ def get_highest_row(grid):
         if not filled_row:
             return (-y_coordinate) - 1
 
-def part_1():
-    grid = defaultdict(int)
+def get_tower_at_height(grid, height):
+    return ['.' if grid[x, height] == 0 else '#' for x in range(7)]
 
+def calculate_height(num_rocks, part_2=False):
+    grid = defaultdict(int)
 
     # Floor is at 0
     # Negative numbers go up the tube
@@ -139,11 +140,27 @@ def part_1():
     rock_id = 0
     stream_index = 0
 
-    GRID_TO_PRINT_SIZE = 50 # 21
+    GRID_TO_PRINT_SIZE = 21 # 21
 
-    for i in range(2022):
+    seen = {}
+
+    for i in range(int(1e12)):
         rock_x = 2
         rock_y = highest_y - 3 - rock_lowest[rock_id]
+
+        if i == num_rocks:
+            return -highest_y
+
+        if part_2:
+            key = rock_id, stream_index
+            current_height = -highest_y
+            if key in seen:
+                dropped, height_at = seen[key]
+                d, m = divmod(1e12-i, dropped-i)
+                if not m:
+                    return int(current_height + (height_at-current_height)*d)
+            else: seen[key] = i, current_height
+
         dprint(f"Spawned Rock {i+1} at ", (rock_x, rock_y), rocks[rock_id])
         print_grid_with_rock_at(grid, rock_id, rock_x, rock_y, GRID_TO_PRINT_SIZE)
         dprint("----")
@@ -173,14 +190,12 @@ def part_1():
         print_grid(grid, GRID_TO_PRINT_SIZE)
         highest_y = -get_highest_row(grid) - 1
         dprint("Highest y: ", highest_y)
-
         rock_id = (rock_id + 1) % len(rocks)
 
-    print(f"Done!")
-    return -highest_y
-
 def part_2():
-    pass
+    return calculate_height(1e12, True)
+def part_1():
+    return calculate_height(2022)
 
 print(f"Part 1: {part_1()}")
 print(f"Part 2: {part_2()}")
