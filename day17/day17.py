@@ -131,7 +131,7 @@ def get_highest_row(grid):
 def get_tower_at_height(grid, height):
     return ['.' if grid[x, height] == 0 else '#' for x in range(7)]
 
-def calculate_height(num_rocks, part_2=False):
+def calculate_height(num_rocks):
     grid = defaultdict(int)
 
     # Floor is at 0
@@ -151,15 +151,14 @@ def calculate_height(num_rocks, part_2=False):
         if i == num_rocks:
             return -highest_y
 
-        if part_2:
-            key = rock_id, stream_index
-            current_height = -highest_y
-            if key in seen:
-                dropped, height_at = seen[key]
-                d, m = divmod(1e12-i, dropped-i)
-                if not m:
-                    return int(current_height + (height_at-current_height)*d)
-            else: seen[key] = i, current_height
+        key = rock_id, stream_index
+        current_height = -highest_y
+        if key in seen:
+            dropped, height_at = seen[key]
+            d, m = divmod(num_rocks-i, dropped-i)
+            if not m:
+                return int(current_height + (height_at-current_height)*d)
+        else: seen[key] = i, current_height
 
         dprint(f"Spawned Rock {i+1} at ", (rock_x, rock_y), rocks[rock_id])
         print_grid_with_rock_at(grid, rock_id, rock_x, rock_y, GRID_TO_PRINT_SIZE)
@@ -193,7 +192,7 @@ def calculate_height(num_rocks, part_2=False):
         rock_id = (rock_id + 1) % len(rocks)
 
 def part_2():
-    return calculate_height(1e12, True)
+    return calculate_height(1e12)
 def part_1():
     return calculate_height(2022)
 
